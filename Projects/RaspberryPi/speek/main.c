@@ -1,29 +1,77 @@
 ﻿#include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <wiringPi.h>
 #define MILLI_SEC 1000000
 
+//https://projects.drogon.net/raspberry-pi/wiringpi/pins/
+#define GPIO_17		0	//Pin - wiringPi pin 0 is BCM_GPIO 17
+#define GPIO_18		1	//Pin - wiringPi pin 1 is BCM_GPIO 18
+#define GPIO_22		3	//Pin - wiringPi pin 3 is BCM_GPIO 22
+#define GPIO_23		4	//Pin - wiringPi pin 4 is BCM_GPIO 23
 
 
 void SpeekTime(int nHour, int nMin,char *cpWavFileName);	//指定時間にしゃべる
 void TimeRepeat(char *pStr);								//一定期間繰り返す
-void SpeekCurrentTime(void);								//現在時刻をしゃべる
+void SpeekCurrentTime(int nMode);							//現在時刻をしゃべる
+void SetVolume(int nVal);									//音量設定
 /*******************************************************************
 * メイン
 *******************************************************************/
 void main(void)
 {
+	int nVolume=6;								//音量初期値
 	struct timespec req = {0, 500*MILLI_SEC};
 
+	wiringPiSetup () ;
+	pinMode (GPIO_17, INPUT) ;
+	pinMode (GPIO_22, INPUT) ;
+	pinMode (GPIO_23, INPUT) ;
+
+	SetVolume(nVolume);							//音量初期値設定
+
 	for(;;){
-		SpeekTime(10,0,"ozv_asakai.wav");		//全体朝会
+//		SpeekTime(10,0,"ozv_asakai.wav");		//全体朝会
 		SpeekTime(10,40,"system_asakai.wav");	//制作チーム朝会
 		SpeekTime(18,48,"system_yukai.wav");	//制作チーム夕会
-		SpeekCurrentTime();						//現在時刻をしゃべる
+//		SpeekCurrentTime(1);					//現在時刻をしゃべる 毎分0秒の時
+
+		if(digitalRead(GPIO_17) == HIGH){
+			SpeekCurrentTime(0);				//現在時刻をしゃべる
+		}
+
+		if(digitalRead(GPIO_22) == HIGH){
+			nVolume++;
+			if(nVolume > 10)nVolume=10;
+			SetVolume(nVolume);					//音量UP
+		}
+		if(digitalRead(GPIO_23) == HIGH){
+			nVolume--;
+			if(nVolume < 0)nVolume=0;
+			SetVolume(nVolume);					//音量DOWN
+		}
+
+
 		nanosleep(&req, NULL);
 
 //    	printf("%04d/%02d/%02d %02d:%02d:%02d\n",pNow->tm_year+1900,pNow->tm_mon+1,pNow->tm_mday,pNow->tm_hour,pNow->tm_min,pNow->tm_sec);
 	}
+}
+
+/*******************************************************************
+* 音量設定
+*  nVal 0..10
+*******************************************************************/
+void SetVolume(int nVal)
+{
+	char zStr[256];
+
+	if(nVal < 0 || nVal > 10)return;
+	sprintf(zStr,"amixer set PCM %d%%",nVal*10);
+	system(zStr);
+
+	sprintf(zStr,"aplay -q /root/AquesTalk/aquestalkpi/wav/volume%d.wav",nVal*10);
+	system(zStr);
 }
 /*******************************************************************
 * 指定時間にしゃべる
@@ -57,8 +105,9 @@ void TimeRepeat(char *pStr)
 }
 /*******************************************************************
 * 現在時刻をしゃべる
+*	nMode 0:いつでも 1:0秒の時だけ
 *******************************************************************/
-void SpeekCurrentTime(void)
+void SpeekCurrentTime(int nMode)
 {
     time_t timer;
     struct tm *pNow;
@@ -67,7 +116,7 @@ void SpeekCurrentTime(void)
     timer = time(NULL);
    	pNow = localtime(&timer);
 
-	if(pNow->tm_sec > 0)return;
+	if(nMode == 1 && pNow->tm_sec > 0)return;
 
 	sprintf(zStr,"aplay -q /root/AquesTalk/aquestalkpi/wav/time/%02dhour.wav",pNow->tm_hour);
 	system(zStr);
