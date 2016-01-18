@@ -38,6 +38,8 @@ void main(void)
 //		SpeekTime(10,0,"ozv_asakai.wav");		//全体朝会
 		SpeekTime(10,40,"system_asakai.wav");	//制作チーム朝会
 		SpeekTime(18,50,"system_yukai.wav");	//制作チーム夕会
+		SpeekTime(22,00,"22call.wav");			//22時　帰りましょー
+
 //		SpeekCurrentTime(1);					//現在時刻をしゃべる 毎分0秒の時
 
 		if(digitalRead(GPIO_17) == HIGH){
