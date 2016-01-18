@@ -22,6 +22,7 @@ void main(void)
 {
 	int nVolume=6;								//音量初期値
 	struct timespec req = {0, 500*MILLI_SEC};
+	char zStr[256];
 
 	wiringPiSetup () ;
 	pinMode (GPIO_17, INPUT) ;
@@ -29,11 +30,14 @@ void main(void)
 	pinMode (GPIO_23, INPUT) ;
 
 	SetVolume(nVolume);							//音量初期値設定
+	strcpy(zStr,"aplay -q /root/AquesTalk/aquestalkpi/wav/kidou-ok.wav");	//起動しました。（音声）
+	system(zStr);
+
 
 	for(;;){
 //		SpeekTime(10,0,"ozv_asakai.wav");		//全体朝会
 		SpeekTime(10,40,"system_asakai.wav");	//制作チーム朝会
-		SpeekTime(18,48,"system_yukai.wav");	//制作チーム夕会
+		SpeekTime(18,50,"system_yukai.wav");	//制作チーム夕会
 //		SpeekCurrentTime(1);					//現在時刻をしゃべる 毎分0秒の時
 
 		if(digitalRead(GPIO_17) == HIGH){
