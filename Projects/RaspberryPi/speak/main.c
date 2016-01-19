@@ -35,7 +35,7 @@ void main(void)
 
 
 	for(;;){
-//		SpeekTime(10,0,"ozv_asakai.wav");		//全体朝会
+		SpeekTime(10,0,"ozv_asakai.wav");		//全体朝会
 		SpeekTime(10,40,"system_asakai.wav");	//制作チーム朝会
 		SpeekTime(18,50,"system_yukai.wav");	//制作チーム夕会
 		SpeekTime(22,00,"22call.wav");			//22時　帰りましょー
@@ -106,7 +106,7 @@ void TimeRepeat(char *pStr)
 	start_time = time(NULL);
 	for(;;){
 		system(pStr);
-		if(difftime(time(NULL), start_time) > 20.)break;		//20sec
+		if(difftime(time(NULL), start_time) > 5.)break;		//5sec
 	}
 }
 /*******************************************************************
