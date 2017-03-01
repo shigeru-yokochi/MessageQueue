@@ -5,7 +5,7 @@
 
 int main()
 {
-int qid;
+int  qid;
 struct{
 	long mtype;
 	char mtext[512];
